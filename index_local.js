@@ -1,12 +1,24 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var userlogin = require('./lambda_src/userlogin');
-var updateuser = require('./lambda_src/updateuser');
-var confirmuser = require('./lambda_src/confirmuser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const userlogin = require('./lambda_src/userlogin');
+const updateuser = require('./lambda_src/updateuser');
+const confirmuser = require('./lambda_src/confirmuser');
+const pretokengenerator = require('./lambda_src/preauthtokengenerator');
 
-var port = 8080;
+const port = 8080;
 var app = express();
 app.use(bodyParser.json());
+
+app.post('/localtest/pretokengenerator', function (req, res) {
+    console.log('Testing pre token generator');
+    pretokengenerator.handler(req.body).then(function(ret) {
+        res.send(ret);
+    }).catch(function(err) {
+        console.log(err);
+    }).finally(function() {
+        res.send();
+    });
+});
 
 app.post('/api/user/login', function (req, res) {
     console.log(`Login function accessed with data: ${req.body}`);

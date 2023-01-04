@@ -7,8 +7,9 @@
     required - username: string or email
     required - email: email of the user
     optional - resendcredentials: Required if user was already created but not confirmed to resend the user password
-    optional - role: UID of the role - will be added to the user
-    optional - rights: []UID of rights - will be appended to the user
+    optional - role: UID of the role - will be added to the user. If not specified, role will be removed
+    optional - rights: []UID of rights - will be appended to the user. If not specified, rights will be removed
+    optional - tenantids: []UID of tenants - will be appended to the user. If not specified, rights will be removed
 */
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
@@ -36,10 +37,10 @@ if (process.env.LOCAL) {
         secretAccessKey: process.env.SECRETKEY
     };
 }
-var dynamoclient = new DynamoDB(dynamoProps);
+const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
-    const { username, email, resendcredentials, role, rights } = JSON.parse(event.body);
+    const { username, email, resendcredentials, role, rights, tenantids } = JSON.parse(event.body);
     var response = {};
     // Search for user in cognito
     var existingUser = false;
@@ -119,23 +120,25 @@ exports.handler = async (event) => {
             }
         }
     }
-    //Update the user roles and rights in user table
-    if (role || rights) {
+    //Update the user roles, rights or tenantids in user table
+    if (role || rights || tenantids) {
         //Update Dynamo with the user roles and rights
         try {
-            await dynamoclient.updateItem({
+            await dynamoClient.updateItem({
                 TableName: process.env.USER_TABLE,
                 Key: marshall({ id: user.Username }),
                 ReturnValues: "ALL_NEW",
                 ExpressionAttributeNames: {
                     '#userrole': 'role',
-                    '#userrights': 'rights'
+                    '#userrights': 'rights',
+                    "#tenantids": 'usertenants'
                 },
                 ExpressionAttributeValues: {
                     ':role': marshall(role || ''),
-                    ':rights': marshall(rights || '')
+                    ':rights': marshall(rights || ''),
+                    ':tenantids': marshall(tenantids || '')
                 },
-                UpdateExpression: 'SET #userrole=:role, #userrights=:rights'
+                UpdateExpression: 'SET #userrole=:role, #userrights=:rights, #tenantids=:tenantids'
             });
         }
         catch (err) {
