@@ -131,17 +131,14 @@ exports.handler = async (event) => {
         }
         var dynamoclient = new DynamoDB(dynamoProps);
         const roleParams = {
-            TableName: process.env.deviceStateHistoryTable,
-            Item: marshall(statehistoryvalues)
+            TableName: process.env.ROLES_TABLE,
+            Item: marshall({})
         };
-        // console.log('Device state history params');
-        // console.log(stateHistoryParams);
         try {
-            await dynamoclient.putItem(stateHistoryParams);
-            // console.log(data);
+            var data = await dynamoclient.putItem(roleParams);
+            console.log(data);
         }
         catch (e) {
-            console.log(`Dynamo state history update error for deviceid ${event.deviceid} at ${event.time}`);
             console.log(e);
         }
     }
