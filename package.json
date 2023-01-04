@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "remote": "npx nodemon index_remote.js",
-    "local": "LOCAL=true COGNITO_LOGIN_URL=https://testnelsonmanagementlogin.auth.eu-central-1.amazoncognito.com ENV_REGION=eu-central-1 SECRET_NAME=Test_test-nelson-users_nelsonmanagement USERPOOL_CLIENT_ID=69ovn0ihplnva0icl1t0rva6j0 USERPOOL_ID=eu-central-1_vbbPJ9beu TEMP_PASSWORD=Welcome@Nelson123 npx nodemon index_local.js",
+    "local": "LOCAL=true COGNITO_LOGIN_URL=https://testnelsonmanagementlogin.auth.eu-central-1.amazoncognito.com ENV_REGION=eu-central-1 SECRET_NAME=Test_test-nelson-users_nelsonmanagement USERPOOL_CLIENT_ID=69ovn0ihplnva0icl1t0rva6j0 USERPOOL_ID=eu-central-1_vbbPJ9beu TEMP_PASSWORD=Welcome@Nelson123 USER_TABLE=test-user-management-users ACCESS_ROLES_TABLE=test-user-management-access-roles ACCESS_RIGHTS_TABLE=test-user-management-access-rights npx nodemon index_local.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +14,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.241.0",
     "@aws-sdk/client-dynamodb": "^3.241.0",
     "@aws-sdk/client-secrets-manager": "^3.241.0",
+    "@aws-sdk/util-dynamodb": "^3.241.0",
     "body-parser": "^1.20.1",
     "config": "^3.3.8",
     "express": "^4.18.2",

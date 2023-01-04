@@ -1,5 +1,8 @@
-/*
+/**
     Creates a new user or updates the user attributes for the user in cognito or the used DB.
+        The function creates a new user in Cognito if user doesn't exist
+        If the user exists and email is provided, then the funciton updates the user email in Cognito
+        If roles or rights are specified, the function updates the roles to the user that exists in the system
     Parameters:
     required - username: string or email
     required - email: email of the user
@@ -7,37 +10,56 @@
     optional - role: UID of the role - will be added to the user
     optional - rights: []UID of rights - will be appended to the user
 */
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDB } = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
 const { CognitoIdentityProvider, MessageActionType, DeliveryMediumType } = require("@aws-sdk/client-cognito-identity-provider");
 const https = require('https');
 
+//Keep the connections to clients outside the handler to allow for reuse of existing connections.
+const cognitoProps = {
+    region: process.env.ENV_REGION,
+    defaultsMode: "standard",
+    requestHandler: https.handler
+}
+if (process.env.LOCAL) {
+    cognitoProps.credentials = {
+        accessKeyId: process.env.ACCESSKEY,
+        secretAccessKey: process.env.SECRETKEY
+    };
+}
+const cognitoClient = new CognitoIdentityProvider(cognitoProps);
+
+const dynamoProps = { region: process.env.ENV_REGION }
+if (process.env.LOCAL) {
+    dynamoProps.credentials = {
+        accessKeyId: process.env.ACCESSKEY,
+        secretAccessKey: process.env.SECRETKEY
+    };
+}
+var dynamoclient = new DynamoDB(dynamoProps);
+
 exports.handler = async (event) => {
     const { username, email, resendcredentials, role, rights } = JSON.parse(event.body);
-    const cognitoProps = {
-        region: process.env.ENV_REGION,
-        defaultsMode: "standard",
-        requestHandler: https.handler
-    }
-    if (process.env.LOCAL) {
-        cognitoProps.credentials = {
-            accessKeyId: process.env.ACCESSKEY,
-            secretAccessKey: process.env.SECRETKEY
-        };
-    }
-    const cognitoClient = new CognitoIdentityProvider(cognitoProps);
-
-    //Step 1: Search for user in cognito
-    var existinguser = false;
+    var response = {};
+    // Search for user in cognito
+    var existingUser = false;
     var user = null;
     try {
         user = await cognitoClient.adminGetUser({
             UserPoolId: process.env.USERPOOL_ID,
             Username: username
         });
-        existinguser = true;
+        response.message = 'Updating existing user';
+        response.user = {
+            enabled: user.Enabled,
+            userattributes: user.UserAttributes,
+            userstatus: user.UserStatus,
+            userid: user.Username
+        };
+        existingUser = true;
     } catch (err) {
-        console.log(err.message);
         if (err.__type == 'UserNotFoundException') {
+            user = null;
             existinguser = false;
         }
         else {
@@ -50,11 +72,10 @@ exports.handler = async (event) => {
             }
         }
     }
-    if (!existinguser || resendcredentials) {
-        //Step 2: Create the new user
+    if (!existingUser || resendcredentials) {
+        // Create the new user
         try {
-            console.log(`Creating user ${username}`);
-            var newuserresult = await cognitoClient.adminCreateUser({
+            var newUserResult = await cognitoClient.adminCreateUser({
                 UserPoolId: process.env.USERPOOL_ID,
                 Username: username,
                 TemporaryPassword: process.env.TEMP_PASSWORD,   //If undefined, Cognito will generate a custom password
@@ -62,18 +83,11 @@ exports.handler = async (event) => {
                 DesiredDeliveryMediums: [DeliveryMediumType.EMAIL],
                 ForceAliasCreation: true
             });
-            user = newuserresult.User;
-            // console.log(newuserresult);
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: existinguser ? 'Resent user creds' : 'Creating new user',
-                    user: newuserresult.User
-                })
-            };
+            user = newUserResult.User;
+            response.message = existingUser ? 'Resent user creds' : 'Creating new user';
+            response.user = newUserResult.User;
         }
         catch (err) {
-            console.log(err.message);
             return {
                 statusCode: 500,
                 body: JSON.stringify({
@@ -82,11 +96,9 @@ exports.handler = async (event) => {
             }
         }
     }
-    else if (email && email != '' && email != getUserEmail(user.UserAttributes)) {
+    if (existingUser && email && email != '' && email != getUserEmail(user.UserAttributes)) {
         try {
             //Existing user - update email in congnito
-            console.log(`Updating existing user parameters`);
-            // console.log(user);
             cognitoResponse = await cognitoClient.adminUpdateUserAttributes({
                 UserPoolId: process.env.USERPOOL_ID,
                 Username: username,
@@ -97,21 +109,8 @@ exports.handler = async (event) => {
                     }
                 ]
             });
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: 'Updating existing user',
-                    user: {
-                        enabled: user.Enabled,
-                        userattributes: user.UserAttributes,
-                        userstatus: user.UserStatus,
-                        userid: user.Username
-                    }
-                })
-            };
         }
         catch (err) {
-            console.log(err.message);
             return {
                 statusCode: 500,
                 body: JSON.stringify({
@@ -120,30 +119,37 @@ exports.handler = async (event) => {
             }
         }
     }
-    if (role != null) {
+    //Update the user roles and rights in user table
+    if (role || rights) {
         //Update Dynamo with the user roles and rights
-        const dynamoProps = { region: process.env.region }
-        if (process.env.LOCAL) {
-            dynamoProps.credentials = {
-                accessKeyId: process.env.ACCESSKEY,
-                secretAccessKey: process.env.SECRETKEY
-            };
-        }
-        var dynamoclient = new DynamoDB(dynamoProps);
-        const roleParams = {
-            TableName: process.env.ROLES_TABLE,
-            Item: marshall({})
-        };
         try {
-            var data = await dynamoclient.putItem(roleParams);
-            console.log(data);
+            await dynamoclient.updateItem({
+                TableName: process.env.USER_TABLE,
+                Key: marshall({ id: user.Username }),
+                ReturnValues: "ALL_NEW",
+                ExpressionAttributeNames: {
+                    '#userrole': 'role',
+                    '#userrights': 'rights'
+                },
+                ExpressionAttributeValues: {
+                    ':role': marshall(role || ''),
+                    ':rights': marshall(rights || '')
+                },
+                UpdateExpression: 'SET #userrole=:role, #userrights=:rights'
+            });
         }
-        catch (e) {
-            console.log(e);
+        catch (err) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    message: err.message
+                })
+            }
         }
     }
-    if (rights != null) {
-        //TODO: Add rights to the user
+    return {
+        statusCode: 200,
+        body: JSON.stringify(response)
     }
 }
 
