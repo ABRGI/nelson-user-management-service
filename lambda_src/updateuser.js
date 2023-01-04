@@ -60,7 +60,7 @@ exports.handler = async (event) => {
     } catch (err) {
         if (err.__type == 'UserNotFoundException') {
             user = null;
-            existinguser = false;
+            existingUser = false;
         }
         else {
             return {
@@ -99,7 +99,7 @@ exports.handler = async (event) => {
     if (existingUser && email && email != '' && email != getUserEmail(user.UserAttributes)) {
         try {
             //Existing user - update email in congnito
-            cognitoResponse = await cognitoClient.adminUpdateUserAttributes({
+            await cognitoClient.adminUpdateUserAttributes({
                 UserPoolId: process.env.USERPOOL_ID,
                 Username: username,
                 UserAttributes: [
@@ -154,5 +154,5 @@ exports.handler = async (event) => {
 }
 
 function getUserEmail(userAttributes) {
-    return emailAttribute = userAttributes.find((attr) => { return attr.Name == 'email' })?.Value || null;
+    return userAttributes.find((attr) => { return attr.Name == 'email' })?.Value || null;
 }

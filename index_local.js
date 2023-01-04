@@ -21,7 +21,7 @@ app.post('/api/user/login', function (req, res) {
     });
 });
 
-app.post('/api/user/update', function (req, res) {
+app.post('/api/user/user', function (req, res) {
     console.log(`User update function accessed with data: ${req.body}`);
     updateuser.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
         res.statusCode = 200;
@@ -33,8 +33,8 @@ app.post('/api/user/update', function (req, res) {
     });
 });
 
-app.post('/api/user/updatepassword', function (req, res) {
-    console.log(`Password update function accessed with data: ${req.body}`);
+app.post('/api/user/confirmuser', function (req, res) {
+    console.log(`Confirm user function accessed with data: ${req.body}`);
     confirmuser.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
         res.statusCode = 200;
         res.send(JSON.parse(ret.body));

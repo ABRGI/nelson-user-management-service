@@ -9,6 +9,11 @@ app.use(createProxyMiddleware('/api/user/login', {
     changeOrigin: true
 }));
 
+app.use(createProxyMiddleware('/api/user/user', {
+    target: 'http://test.nelson.management',
+    changeOrigin: true
+}));
+
 app.listen(port, function () {
     console.log(`Server started on port ${port}`);
 });
