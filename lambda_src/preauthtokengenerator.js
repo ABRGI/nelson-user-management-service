@@ -19,9 +19,9 @@ exports.handler = async (event) => {
         var unmarshalledData = unmarshall(userData.Item);
         event.response.claimsOverrideDetails = {
             claimsToAddOrOverride: {
-                "custom:tenantids": unmarshalledData.usertenants || '',
-                "custom:role": unmarshalledData.role || '',
-                "custom:rights": unmarshalledData.rights || ''
+                "tenantids": unmarshalledData.usertenants || '',
+                "roles": unmarshalledData.roles || '',
+                "rights": unmarshalledData.rights || ''
             }
         }
     }

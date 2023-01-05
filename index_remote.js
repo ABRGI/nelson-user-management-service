@@ -1,4 +1,4 @@
-var express = require('express');
+const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 var port = 8080;
@@ -9,7 +9,22 @@ app.use(createProxyMiddleware('/api/user/login', {
     changeOrigin: true
 }));
 
+app.use(createProxyMiddleware('/api/user/logout', {
+    target: 'http://test.nelson.management',
+    changeOrigin: true
+}));
+
 app.use(createProxyMiddleware('/api/user/user', {
+    target: 'http://test.nelson.management',
+    changeOrigin: true
+}));
+
+app.use(createProxyMiddleware('/api/user/listusers', {
+    target: 'http://test.nelson.management',
+    changeOrigin: true
+}));
+
+app.use(createProxyMiddleware('/api/user/roles', {
     target: 'http://test.nelson.management',
     changeOrigin: true
 }));
