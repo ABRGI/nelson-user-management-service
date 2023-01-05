@@ -7,7 +7,7 @@
 */
 
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
-const { unmarshall } = require("@aws-sdk/util-dynamodb");
+const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 
 const dynamoProps = { region: process.env.ENV_REGION }
 if (process.env.LOCAL) {
@@ -20,21 +20,35 @@ const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
     var response = {};
-    const { tenantid, email, userroleid } = event.queryStringParameters;
+    const { tenantid, email, userroleid, limit, lastevaluatedid } = event.queryStringParameters;
 
     try {
-        const dynamoResponse = await dynamoClient.scan({
+        var dynamoProps = {
             TableName: process.env.USER_TABLE,
-            ReturnConsumedCapacity: "INDEXES"
-        });
+            ReturnConsumedCapacity: "INDEXES",
+            ExpressionAttributeNames: {
+                '#roles': 'roles'
+            },
+            ProjectionExpression: 'id, email, #roles'
+        };
+        if (limit) {
+            dynamoProps.Limit = parseInt(limit);
+        }
+        if (lastevaluatedid) {
+            dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
+        }
+        const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
         dynamoResponse.Items.forEach(function (item) {
             unmarshalledData.push(unmarshall(item));
         });
         response = {
             users: unmarshalledData,
-            consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits
+            consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
         };
+        if (dynamoResponse.LastEvaluatedKey) {
+            response.lastEvaluatedId = unmarshall(dynamoResponse.LastEvaluatedKey);
+        }
     } catch (err) {
         return {
             statusCode: 500,
