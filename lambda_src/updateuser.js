@@ -9,7 +9,6 @@
     required - fullname: string full name of the user
     optional - resendcredentials: Required if user was already created but not confirmed to resend the user password
     optional - roles: Comma separated UID of the roles - will be added to the user. If not specified, role will be removed
-    optional - rights: Comma separated UIDs of rights - will be appended to the user. If not specified, rights will be removed
     optional - tenantids: Comma separated UIDs of tenants - will be appended to the user. If not specified, rights will be removed
     optional - disabled: boolean indicating if the user is disabled. Default false
 */
@@ -42,7 +41,7 @@ if (process.env.LOCAL) {
 const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
-    const { username, email, fullname, resendcredentials, roles, rights, tenantids, disabled = false } = JSON.parse(event.body);
+    const { username, email, fullname, resendcredentials, roles, tenantids, environmentids, disabled = false } = JSON.parse(event.body);
     var response = {};
     // Search for user in cognito
     var existingUser = false;
@@ -85,12 +84,19 @@ exports.handler = async (event) => {
                 MessageAction: resendcredentials ? MessageActionType.RESEND : undefined,
                 DesiredDeliveryMediums: [DeliveryMediumType.EMAIL],
                 ForceAliasCreation: true,
-                UserAttributes: {
-                    'name': fullname
-                }
+                UserAttributes: [
+                    {
+                        Name: 'name',
+                        Value: fullname
+                    },
+                    {
+                        Name: 'email',
+                        Value: email
+                    }
+                ]
             });
             user = newUserResult.User;
-            response.message = existingUser ? 'Resent user creds' : 'Creating new user';
+            response.message = resendcredentials ? 'Resent user creds' : 'Creating new user';
             response.user = newUserResult.User;
         }
         catch (err) {
@@ -156,26 +162,28 @@ exports.handler = async (event) => {
             ReturnValues: "ALL_NEW",
             ExpressionAttributeNames: {
                 '#userroles': 'roles',
-                '#userrights': 'rights',
-                '#tenantids': 'usertenants',
+                '#tenantids': 'tenantids',
+                '#environmentids': 'environmentids',
                 '#email': 'email',
                 '#name': 'name',
                 '#enabled': 'enabled'
             },
             ExpressionAttributeValues: {
                 ':roles': marshall(roles || ''),
-                ':rights': marshall(rights || ''),
                 ':tenantids': marshall(tenantids || ''),
+                ':environmentids': marshall(environmentids || ''),
                 ':email': marshall(email || getAttributeValue(user.UserAttributes, 'email')),
                 ':name': marshall(fullname || getAttributeValue(user.UserAttributes, 'name')),
                 ":enabled": marshall(!disabled)
             },
-            UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #userrights=:rights, #tenantids=:tenantids, #enabled=:enabled'
+            UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #tenantids=:tenantids, #environmentids=:environmentids, #enabled=:enabled'
         }
         if (!existingUser) {
             dynamoProps.ExpressionAttributeNames['#createddate'] = 'createddate';
             dynamoProps.ExpressionAttributeValues[':createddate'] = marshall(new Date().getTime());
-            dynamoProps.UpdateExpression += ', #createddate=:createddate';
+            dynamoProps.ExpressionAttributeNames['#confirmed'] = 'confirmed';
+            dynamoProps.ExpressionAttributeValues[':confirmed'] = marshall(false);
+            dynamoProps.UpdateExpression += ', #createddate=:createddate, #confirmed=:confirmed';
         }
         await dynamoClient.updateItem(dynamoProps);
     }
@@ -189,10 +197,12 @@ exports.handler = async (event) => {
     }
     return {
         statusCode: 200,
-        body: JSON.stringify(response)
+        body: JSON.stringify({
+            message: "Successfully updated user"
+        })
     }
 }
 
 function getAttributeValue(userAttributes, attributeName) {
-    return userAttributes.find((attr) => { return attr.Name == attributeName })?.Value || null;
+    return userAttributes?.find((attr) => { return attr.Name == attributeName })?.Value || null;
 }

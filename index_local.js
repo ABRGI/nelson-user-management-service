@@ -18,8 +18,6 @@ app.post('/localtest/pretokengenerator', function (req, res) {
         res.send(ret);
     }).catch(function (err) {
         console.log(err);
-    }).finally(function () {
-        res.send();
     });
 });
 
@@ -35,22 +33,19 @@ app.post('/api/user/login', function (req, res) {
         res.send(respBody);
     }).catch(function (error) {
         console.log(error);
-    }).finally(function () {
-        res.send();
     });
 });
 
 app.post('/api/user/logout', function (req, res) { res.send(); });
 
 app.post('/api/user/user', function (req, res) {
-    console.log(`User update function accessed with data: ${req.body}`);
+    console.log(`User update function accessed with data:`);
+    console.log(req.body);
     updateuser.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
-        res.statusCode = 200;
+        res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
         console.log(err);
-    }).finally(function () {
-        res.send();
     });
 });
 
@@ -58,7 +53,7 @@ app.get('/api/user/user', function (req, res) {
     console.log(`Get user function accessed for user: `);
     console.log(req.query);
     getuserdetail.handler({ queryStringParameters: req.query }).then(function (ret) {
-        res.statusCode = 200;
+        res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
         console.log(err);
@@ -68,12 +63,10 @@ app.get('/api/user/user', function (req, res) {
 app.post('/api/user/confirmuser', function (req, res) {
     console.log(`Confirm user function accessed with data: ${req.body}`);
     confirmuser.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
-        res.statusCode = 200;
+        res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
         console.log(err);
-    }).finally(function () {
-        res.send();
     });
 });
 
@@ -91,7 +84,7 @@ app.get('/api/user/listusers', function (req, res) {
 app.get('/api/user/roles', function (req, res) {
     console.log(`List roles function accessed`);
     roles.handler().then(function (ret) {
-        res.statusCode = 200;
+        res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
         console.log(err);

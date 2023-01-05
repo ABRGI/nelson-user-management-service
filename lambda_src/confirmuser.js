@@ -4,24 +4,51 @@
 */
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 const { CognitoIdentityProvider } = require("@aws-sdk/client-cognito-identity-provider");
+const { DynamoDB } = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
 const { createHmac } = require('crypto');
 const https = require('https');
+const { response } = require("express");
+
+const secretsProps = {
+    region: process.env.ENV_REGION
+}
+
+if (process.env.LOCAL) {
+    secretsProps.credentials = {
+        accessKeyId: process.env.ACCESSKEY,
+        secretAccessKey: process.env.SECRETKEY
+    };
+}
+
+const secretsClient = new SecretsManagerClient(secretsProps);
+
+const dynamoProps = { region: process.env.ENV_REGION }
+if (process.env.LOCAL) {
+    dynamoProps.credentials = {
+        accessKeyId: process.env.ACCESSKEY,
+        secretAccessKey: process.env.SECRETKEY
+    };
+}
+const dynamoClient = new DynamoDB(dynamoProps);
+
+const cognitoProps = {
+    region: process.env.ENV_REGION,
+    defaultsMode: "standard",
+    requestHandler: https.handler
+}
+if (process.env.LOCAL) {
+    cognitoProps.credentials = {
+        accessKeyId: process.env.ACCESSKEY,
+        secretAccessKey: process.env.SECRETKEY
+    };
+}
+const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
 exports.handler = async (event) => {
     const { username, session, newpassword, challenegname } = JSON.parse(event.body);
-    const secretsProps = {
-        region: process.env.ENV_REGION
-    }
-
-    if (process.env.LOCAL) {
-        secretsProps.credentials = {
-            accessKeyId: process.env.ACCESSKEY,
-            secretAccessKey: process.env.SECRETKEY
-        };
-    }
-
+    var response = {};
     //Get the client secret
-    const secretsClient = new SecretsManagerClient(secretsProps);
     let secretResponse;
     let secret = '';
     try {
@@ -39,19 +66,6 @@ exports.handler = async (event) => {
     const hasher = createHmac('sha256', secret);
     hasher.update(`${username}${process.env.USERPOOL_CLIENT_ID}`);
     const secretHash = hasher.digest('base64');
-    
-    const cognitoProps = {
-        region: process.env.ENV_REGION,
-        defaultsMode: "standard",
-        requestHandler: https.handler
-    }
-    if (process.env.LOCAL) {
-        cognitoProps.credentials = {
-            accessKeyId: process.env.ACCESSKEY,
-            secretAccessKey: process.env.SECRETKEY
-        };
-    }
-    const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
     try {
         var cognitoResponse = await cognitoClient.respondToAuthChallenge({
@@ -64,13 +78,20 @@ exports.handler = async (event) => {
                 NEW_PASSWORD: newpassword
             }
         });
-        // console.log(cognitoResponse.AuthenticationResult);
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: "User password set",
-                token: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.IdToken : ''
-            })
+        await dynamoClient.updateItem({
+            TableName: process.env.USER_TABLE,
+            Key: marshall({ id: JSON.parse(Buffer.from(cognitoResponse.AuthenticationResult.IdToken.split('.')[1], 'base64')).sub }),
+            ExpressionAttributeNames: {
+                '#confirmed': 'confirmed',
+            },
+            ExpressionAttributeValues: {
+                ':confirmed': marshall(true),
+            },
+            UpdateExpression: 'SET #confirmed=:confirmed'
+        });
+        response = {
+            message: "User password set",
+            token: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.IdToken : ''
         };
     }
     catch (err) {
@@ -83,4 +104,8 @@ exports.handler = async (event) => {
             })
         }
     }
+    return {
+        statusCode: 200,
+        body: JSON.stringify(response)
+    };
 }

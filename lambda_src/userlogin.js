@@ -84,17 +84,19 @@ exports.handler = async (event) => {
             challenge: cognitoResponse.ChallengeName,
             session: cognitoResponse.Session ?? null
         }
-        await dynamoClient.updateItem({
-            TableName: process.env.USER_TABLE,
-            Key: marshall({ id: JSON.parse(Buffer.from(cognitoResponse.AuthenticationResult.IdToken.split('.')[1], 'base64')).sub }),
-            ExpressionAttributeNames: {
-                '#lastlogintime': 'lastlogintime',
-            },
-            ExpressionAttributeValues: {
-                ':lastlogintime': marshall(new Date().getTime())
-            },
-            UpdateExpression: 'SET #lastlogintime=:lastlogintime'
-        });
+        if (cognitoResponse.AuthenticationResult) {
+            await dynamoClient.updateItem({
+                TableName: process.env.USER_TABLE,
+                Key: marshall({ id: JSON.parse(Buffer.from(cognitoResponse.AuthenticationResult.IdToken.split('.')[1], 'base64')).sub }),
+                ExpressionAttributeNames: {
+                    '#lastlogintime': 'lastlogintime',
+                },
+                ExpressionAttributeValues: {
+                    ':lastlogintime': marshall(new Date().getTime())
+                },
+                UpdateExpression: 'SET #lastlogintime=:lastlogintime'
+            });
+        }
     }
     catch (e) {
         console.log({
