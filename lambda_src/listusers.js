@@ -25,7 +25,7 @@ const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
     var response = {};
-    const { tenantids, email, userroleid, limit, lastevaluatedid, activeonly = false, countonly = false, includeenvironments = false } = event.queryStringParameters;
+    const { tenantid, email, userroleids, limit, lastevaluatedid, activeonly = false, countonly = false, includeenvironments = false } = event.queryStringParameters;
 
     try {
         var dynamoProps = {
@@ -48,6 +48,25 @@ exports.handler = async (event) => {
         }
         if (countonly) {
             dynamoProps.Select = Select.COUNT
+        }
+        if (tenantid) {
+            dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
+            dynamoProps.ProjectionExpression += ', tenantids';
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
+            dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid)
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`
+        }
+        if (email) {
+            dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
+            dynamoProps.ExpressionAttributeValues[':email'] = marshall(email)
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`
+        }
+        if(userroleids) {
+            dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
+            dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids)
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`
         }
         const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
