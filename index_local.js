@@ -7,6 +7,8 @@ const confirmuser = require('./lambda_src/confirmuser');
 const pretokengenerator = require('./lambda_src/preauthtokengenerator');
 const listusers = require('./lambda_src/listusers');
 const roles = require('./lambda_src/roles');
+const resetpassword = require('./lambda_src/resetpassword');
+const forgotpassword = require('./lambda_src/forgotpassword');
 
 const port = 4000;
 var app = express();
@@ -84,6 +86,26 @@ app.get('/api/user/listusers', function (req, res) {
 app.get('/api/user/roles', function (req, res) {
     console.log(`List roles function accessed`);
     roles.handler().then(function (ret) {
+        res.statusCode = ret.statusCode;
+        res.send(JSON.parse(ret.body));
+    }).catch(function (err) {
+        console.log(err);
+    });
+});
+
+app.post('/api/user/resetpassword', function (req, res) {
+    console.log(`Reset password function accessed with data: ${req.body}`);
+    resetpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
+        res.statusCode = ret.statusCode;
+        res.send(JSON.parse(ret.body));
+    }).catch(function (err) {
+        console.log(err);
+    });
+});
+
+app.post('/api/user/forgotpassword', function (req, res) {
+    console.log(`Forgot password function accessed with data: ${req.body}`);
+    forgotpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
         res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {

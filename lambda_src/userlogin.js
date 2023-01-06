@@ -43,37 +43,32 @@ const dynamoClient = new DynamoDB(dynamoProps);
 exports.handler = async (event) => {
     const { username, password } = JSON.parse(event.body);
     var response = {};
-    //Get the client secret
-    let secretResponse;
-    let secret = '';
+
     try {
+        //Get the client secret
+        let secretResponse;
+        let secret = '';
         secretResponse = await secretsClient.send(
             new GetSecretValueCommand({
                 SecretId: process.env.SECRET_NAME
             })
         );
-    }
-    catch (error) {
-        console.error('Error reading secret!');
-        console.log(error);
-    }
-    secret = secretResponse.SecretString;
-    const hasher = createHmac('sha256', secret);
-    hasher.update(`${username}${process.env.USERPOOL_CLIENT_ID}`);
-    const secretHash = hasher.digest('base64');
+        secret = secretResponse.SecretString;
+        const hasher = createHmac('sha256', secret);
+        hasher.update(`${username}${process.env.USERPOOL_CLIENT_ID}`);
+        const secretHash = hasher.digest('base64');
 
-    //Login stage: Get AccessToken, IdToken and RefreshToken
-    const cognitoInitiateAuthCommand = new InitiateAuthCommand({
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-        AuthParameters: {
-            USERNAME: username,
-            PASSWORD: password,
-            SECRET_HASH: secretHash,
-        },
-        ClientId: process.env.USERPOOL_CLIENT_ID
-    });
+        //Login stage: Get AccessToken, IdToken and RefreshToken
+        const cognitoInitiateAuthCommand = new InitiateAuthCommand({
+            AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+            AuthParameters: {
+                USERNAME: username,
+                PASSWORD: password,
+                SECRET_HASH: secretHash,
+            },
+            ClientId: process.env.USERPOOL_CLIENT_ID
+        });
 
-    try {
         var cognitoResponse = await cognitoClient.send(cognitoInitiateAuthCommand);
         // console.log(cognitoResponse.AuthenticationResult);
         //cognitoResponse will have format specified here: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-cognito-identity-provider/interfaces/admininitiateauthcommandoutput.html
@@ -100,12 +95,12 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log({
-            message: `Login fail for user ${username} e.message`,
+            message: `Login fail for user ${username} ${e.message}`,
             type: e.__type
         });
         return {
             body: JSON.stringify({
-                message: `Login failed: ${e.message}`
+                message: `Login failed`
             }),
             statusCode: 401
         }
