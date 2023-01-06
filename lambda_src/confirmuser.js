@@ -8,7 +8,6 @@ const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const { createHmac } = require('crypto');
 const https = require('https');
-const { response } = require("express");
 
 const secretsProps = {
     region: process.env.ENV_REGION

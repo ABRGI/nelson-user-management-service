@@ -11,7 +11,7 @@
         includeenvironments: boolean if environment data is required. Default false
 */
 
-const { DynamoDB, Select, ReturnConsumedCapacity } = require("@aws-sdk/client-dynamodb");
+const { DynamoDB, Select } = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 
 const dynamoProps = { region: process.env.ENV_REGION }
@@ -30,7 +30,7 @@ exports.handler = async (event) => {
     try {
         var dynamoProps = {
             TableName: process.env.USER_TABLE,
-            ReturnConsumedCapacity: ReturnConsumedCapacity.INDEXES,
+            ReturnConsumedCapacity: "INDEXES",
             ExpressionAttributeNames: {
                 '#roles': 'roles'
             },

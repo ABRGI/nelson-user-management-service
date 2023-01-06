@@ -12,7 +12,7 @@
     optional - tenantids: Comma separated UIDs of tenants - will be appended to the user. If not specified, rights will be removed
     optional - disabled: boolean indicating if the user is disabled. Default false
 */
-const { DynamoDB, ReturnValue } = require("@aws-sdk/client-dynamodb");
+const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const { CognitoIdentityProvider, MessageActionType, DeliveryMediumType } = require("@aws-sdk/client-cognito-identity-provider");
 const https = require('https');
@@ -159,7 +159,6 @@ exports.handler = async (event) => {
         var dynamoProps = {
             TableName: process.env.USER_TABLE,
             Key: marshall({ id: user.Username }),
-            ReturnValues: ReturnValue.ALL_NEW,
             ExpressionAttributeNames: {
                 '#userroles': 'roles',
                 '#tenantids': 'tenantids',
