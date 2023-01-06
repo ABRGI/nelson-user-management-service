@@ -1,12 +1,17 @@
 /*
     Function lists all users based on search criteria
     params:
-        tenantid: string - hotel id for which the user has access to
-        email: string - email of the user being searched
-        userroleid: role id of for which the search is made
+        tenantids: comma separated string - hotel id for which the user has access to
+        email: string - partial email of the user being searched
+        userroleid: string role id of for which the search is made
+        lastevaluatedid: string when pagination is required
+        limit: number specifying limit to fetch
+        activeonly: boolean if only the active users are reuqired. Default false
+        countonly: boolean if only the count of active users is required. Default false
+        includeenvironments: boolean if environment data is required. Default false
 */
 
-const { DynamoDB } = require("@aws-sdk/client-dynamodb");
+const { DynamoDB, Select, ReturnConsumedCapacity } = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 
 const dynamoProps = { region: process.env.ENV_REGION }
@@ -20,22 +25,29 @@ const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
     var response = {};
-    const { tenantid, email, userroleid, limit, lastevaluatedid } = event.queryStringParameters;
+    const { tenantids, email, userroleid, limit, lastevaluatedid, activeonly = false, countonly = false, includeenvironments = false } = event.queryStringParameters;
 
     try {
         var dynamoProps = {
             TableName: process.env.USER_TABLE,
-            ReturnConsumedCapacity: "INDEXES",
+            ReturnConsumedCapacity: ReturnConsumedCapacity.INDEXES,
             ExpressionAttributeNames: {
                 '#roles': 'roles'
             },
             ProjectionExpression: 'id, email, #roles'
         };
+        if (includeenvironments) {
+            dynamoProps.ExpressionAttributeNames['#environmentids'] = 'environmentids'
+            dynamoProps.ProjectionExpression += ', #environmentids';
+        }
         if (limit) {
             dynamoProps.Limit = parseInt(limit);
         }
         if (lastevaluatedid) {
             dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
+        }
+        if (countonly) {
+            dynamoProps.Select = Select.COUNT
         }
         const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
