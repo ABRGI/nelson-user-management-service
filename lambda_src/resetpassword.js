@@ -22,7 +22,7 @@ const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 exports.handler = async (event) => {
     const { username } = JSON.parse(event.body);
     try {
-        const cognitoResponse = await cognitoClient.adminSetUserPassword({
+        await cognitoClient.adminSetUserPassword({
             UserPoolId: process.env.USERPOOL_ID,
             Username: username,
             Password: process.env.TEMP_PASSWORD,
