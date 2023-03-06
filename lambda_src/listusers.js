@@ -34,7 +34,7 @@ exports.handler = async (event) => {
             ExpressionAttributeNames: {
                 '#roles': 'roles'
             },
-            ProjectionExpression: 'id, email, #roles'
+            ProjectionExpression: 'id, email, #roles, tenantids'
         };
         if (includeenvironments) {
             dynamoProps.ExpressionAttributeNames['#environmentids'] = 'environmentids'
@@ -51,7 +51,6 @@ exports.handler = async (event) => {
         }
         if (tenantid) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ProjectionExpression += ', tenantids';
             dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
             dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid)
             dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`
@@ -68,6 +67,12 @@ exports.handler = async (event) => {
             dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids)
             dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`
         }
+        if(activeonly == 'true') {
+            dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
+            dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true)
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`
+        }
         const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
         dynamoResponse.Items.forEach(function (item) {
@@ -78,7 +83,7 @@ exports.handler = async (event) => {
             consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
         };
         if (dynamoResponse.LastEvaluatedKey) {
-            response.lastEvaluatedId = unmarshall(dynamoResponse.LastEvaluatedKey);
+            response.lastEvaluatedId = (unmarshall(dynamoResponse.LastEvaluatedKey)).id;
         }
     } catch (err) {
         return {

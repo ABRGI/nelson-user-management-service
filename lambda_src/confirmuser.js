@@ -94,7 +94,12 @@ exports.handler = async (event) => {
         };
     }
     catch (err) {
-        console.log(err.message);
+        if (username) {
+            console.log(`error updating password for user ${username} - ${err.message}`);
+        }
+        else {
+            console.log(err.message);
+        }
         return {
             statusCode: 500,
             body: JSON.stringify({
