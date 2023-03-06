@@ -31,23 +31,23 @@ exports.handler = async (event) => {
         var dynamoProps = {
             TableName: process.env.USER_TABLE,
             ReturnConsumedCapacity: "INDEXES",
-            ExpressionAttributeNames: {
-                '#roles': 'roles'
-            },
-            ProjectionExpression: 'id, email, #roles, tenantids'
         };
-        if (includeenvironments) {
-            dynamoProps.ExpressionAttributeNames['#environmentids'] = 'environmentids'
-            dynamoProps.ProjectionExpression += ', #environmentids';
-        }
         if (limit) {
             dynamoProps.Limit = parseInt(limit);
         }
         if (lastevaluatedid) {
             dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
         }
-        if (countonly) {
+        if (countonly == 'true') {
             dynamoProps.Select = Select.COUNT
+        }
+        else {
+            dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
+            dynamoProps.ExpressionAttributeNames['#roles'] = 'roles';
+            dynamoProps.ProjectionExpression = 'id, email, #roles, tenantids';
+            if (includeenvironments == 'true') {
+                dynamoProps.ProjectionExpression += ', environmentids';
+            }
         }
         if (tenantid) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
@@ -61,13 +61,15 @@ exports.handler = async (event) => {
             dynamoProps.ExpressionAttributeValues[':email'] = marshall(email)
             dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`
         }
-        if(userroleids) {
+        if (userroleids) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
+            dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
+            dynamoProps.ExpressionAttributeNames['#roles'] = 'roles';
             dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
             dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids)
             dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`
         }
-        if(activeonly == 'true') {
+        if (activeonly == 'true') {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
             dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
             dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true)
@@ -75,17 +77,25 @@ exports.handler = async (event) => {
         }
         const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
-        dynamoResponse.Items.forEach(function (item) {
-            unmarshalledData.push(unmarshall(item));
-        });
         response = {
-            users: unmarshalledData,
             consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
-        };
+        }
+        console.log(dynamoResponse);
+        if (countonly != 'true') {
+            dynamoResponse.Items.forEach(function (item) {
+                unmarshalledData.push(unmarshall(item));
+            });
+            response.users = unmarshalledData;
+        }
+        else {
+            response.count = dynamoResponse.Count;
+        }
         if (dynamoResponse.LastEvaluatedKey) {
             response.lastEvaluatedId = (unmarshall(dynamoResponse.LastEvaluatedKey)).id;
         }
     } catch (err) {
+        console.log(event);
+        console.log(err);
         return {
             statusCode: 500,
             body: JSON.stringify({
