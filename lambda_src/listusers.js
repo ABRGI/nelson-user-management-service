@@ -80,7 +80,6 @@ exports.handler = async (event) => {
         response = {
             consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
         }
-        console.log(dynamoResponse);
         if (countonly != 'true') {
             dynamoResponse.Items.forEach(function (item) {
                 unmarshalledData.push(unmarshall(item));
