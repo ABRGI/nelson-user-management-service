@@ -25,7 +25,7 @@ const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
     var response = {};
-    const { tenantid, email, userroleids, limit, lastevaluatedid, activeonly = false, countonly = false, includeenvironments = false } = event.queryStringParameters;
+    const { tenantid, email, userroleids, limit, lastevaluatedid, activeonly = false, countonly = false, includeenvironments = false } = event.queryStringParameters || {};
 
     try {
         var dynamoProps = {
