@@ -90,6 +90,10 @@ exports.handler = async (event) => {
                 response.users.push(...data.users);
             }
         }
+        if (response.users.length > parseInt(limit)) {
+            response.lastEvaluatedId = response.users[limit].id;
+            response.users.splice(limit);
+        }
     } catch (err) {
         console.log(event);
         console.log(err);
