@@ -32,9 +32,6 @@ exports.handler = async (event) => {
             TableName: process.env.USER_TABLE,
             ReturnConsumedCapacity: "INDEXES",
         };
-        if (limit) {
-            dynamoProps.Limit = parseInt(limit);
-        }
         if (lastevaluatedid) {
             dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
         }
@@ -42,6 +39,10 @@ exports.handler = async (event) => {
             dynamoProps.Select = Select.COUNT
         }
         else {
+            //Use limit only if count is set to false
+            if (limit) {
+                dynamoProps.Limit = parseInt(limit);
+            }
             dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
             dynamoProps.ExpressionAttributeNames['#roles'] = 'roles';
             dynamoProps.ProjectionExpression = 'id, email, #roles, tenantids';
@@ -75,22 +76,19 @@ exports.handler = async (event) => {
             dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true)
             dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`
         }
-        const dynamoResponse = await dynamoClient.scan(dynamoProps);
-        var unmarshalledData = [];
-        response = {
-            consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
-        }
-        if (countonly != 'true') {
-            dynamoResponse.Items.forEach(function (item) {
-                unmarshalledData.push(unmarshall(item));
-            });
-            response.users = unmarshalledData;
-        }
-        else {
-            response.count = dynamoResponse.Count;
-        }
-        if (dynamoResponse.LastEvaluatedKey) {
-            response.lastEvaluatedId = (unmarshall(dynamoResponse.LastEvaluatedKey)).id;
+        var data = await fetchData(dynamoProps, countonly);
+        response = data;
+        var i = 0;
+        //If the returned data doesn't include as much as the limit
+        while (countonly != 'true' && response.lastEvaluatedId && response.users.length < parseInt(limit)) {
+            dynamoProps.ExclusiveStartKey = marshall({ id: response.lastEvaluatedId });
+            dynamoProps.limit = limit - response.users.length;
+            data = await fetchData(dynamoProps, countonly);
+            response.consumedCapacityUnits += data.consumedCapacityUnits;
+            response.lastEvaluatedId = data.lastEvaluatedId;
+            if (data.users) {
+                response.users.push(...data.users);
+            }
         }
     } catch (err) {
         console.log(event);
@@ -107,4 +105,26 @@ exports.handler = async (event) => {
         statusCode: 200,
         body: JSON.stringify(response)
     };
+}
+
+async function fetchData(dynamoProps, countonly) {
+    var response = {};
+    const dynamoResponse = await dynamoClient.scan(dynamoProps);
+    var unmarshalledData = [];
+    response = {
+        consumedCapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
+    };
+    if (countonly != 'true') {
+        dynamoResponse.Items.forEach(function (item) {
+            unmarshalledData.push(unmarshall(item));
+        });
+        response.users = unmarshalledData;
+    }
+    else {
+        response.count = dynamoResponse.Count;
+    }
+    if (dynamoResponse.LastEvaluatedKey) {
+        response.lastEvaluatedId = (unmarshall(dynamoResponse.LastEvaluatedKey)).id;
+    }
+    return response;
 }
