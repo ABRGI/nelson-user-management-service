@@ -10,7 +10,7 @@ const roles = require('./lambda_src/roles');
 const resetpassword = require('./lambda_src/resetpassword');
 const forgotpassword = require('./lambda_src/forgotpassword');
 
-const port = 4000;
+const port = process.env.PORT;
 var app = express();
 app.use(bodyParser.json());
 

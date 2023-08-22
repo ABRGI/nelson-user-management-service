@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Local",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeExecutable": "/Users/baynes/.nvm/versions/node/v18.17.1/bin/nodemon",
+            "program": "${workspaceFolder}/index_local.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "env": {
+                "PORT": "8000",
+                "LOCAL": "true",
+                "ENV_REGION": "eu-central-1",
+                "SECRET_NAME": "Prod_nelson-users_nelsonmanagement_secret",
+                "USERPOOL_ID": "eu-central-1_FpDokBIgN",
+                "USERPOOL_CLIENT_ID": "3ug367r4eg480cboidfsdf8t9j",
+                "USER_TABLE": "nelson-user-management-users",
+                "TEMP_PASSWORD": "Welcome@Nelson123",
+                "ACCESS_ROLES_TABLE": "user-management-access-roles",
+                "ACCESSKEY": "{{AWS Access Key}}",
+                "SECRETKEY": "{{AWS Secret Key}}"
+            }
+        }
+    ]
+}
