@@ -1,7 +1,7 @@
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -21,15 +21,16 @@ exports.handler = async (event) => {
             claimsToAddOrOverride: {
                 "tenantids": unmarshalledData.tenantids || '',
                 "roles": unmarshalledData.roles || '',
-                "environmentids": unmarshalledData.environmentids || ''
+                "environmentids": unmarshalledData.environmentids || '',
+                "hotelids": unmarshalledData.hotelids || ''
             }
-        }
+        };
     }
     catch (err) {
         console.log(err);
     }
     return event;
-}
+};
 
 /*
 Example event for nelson@nelson.management
