@@ -34,7 +34,7 @@ if (process.env.LOCAL) {
 }
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
                     message: "Internal server error",
                     error: err.message
                 })
-            }
+            };
         }
     }
     if (!existingUser || resendcredentials) {
@@ -108,7 +108,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     message: err.message
                 })
-            }
+            };
         }
     }
     //Update cognito properties
@@ -154,7 +154,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     message: err.message
                 })
-            }
+            };
         }
     }
     //Update Dynamo with the user data
@@ -181,7 +181,7 @@ exports.handler = async (event) => {
                 ":enabled": marshall(!disabled)
             },
             UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #tenantids=:tenantids, #environmentids=:environmentids, #hotelids=:hotelids, #enabled=:enabled'
-        }
+        };
         if (!existingUser) {
             dynamoProps.ExpressionAttributeNames['#createddate'] = 'createddate';
             dynamoProps.ExpressionAttributeValues[':createddate'] = marshall(new Date().getTime());
@@ -197,15 +197,15 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify({
             message: "Successfully updated user"
         })
-    }
-}
+    };
+};
 
 function getAttributeValue(userAttributes, attributeName) {
     return userAttributes?.find((attr) => { return attr.Name == attributeName })?.Value || null;
