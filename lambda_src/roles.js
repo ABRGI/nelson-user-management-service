@@ -5,7 +5,7 @@
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -37,6 +37,6 @@ exports.handler = async () => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
-}
+};

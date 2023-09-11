@@ -16,7 +16,7 @@ const https = require('https');
 
 const secretsProps = {
     region: process.env.ENV_REGION
-}
+};
 
 if (process.env.LOCAL) {
     secretsProps.credentials = {
@@ -31,7 +31,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -40,7 +40,7 @@ if (process.env.LOCAL) {
 }
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -89,7 +89,7 @@ exports.handler = async (event) => {
                 refreshtoken: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.RefreshToken : null,
                 challenge: cognitoResponse.ChallengeName,
                 session: cognitoResponse.Session ?? null
-            }
+            };
             if (cognitoResponse.AuthenticationResult) {
                 await dynamoClient.updateItem({
                     TableName: process.env.USER_TABLE,
@@ -120,7 +120,7 @@ exports.handler = async (event) => {
                 refreshtoken: cognitoResponse.AuthenticationResult && cognitoResponse.AuthenticationResult.RefreshToken ? cognitoResponse.AuthenticationResult.RefreshToken : refreshtoken,
                 challenge: cognitoResponse.ChallengeName,
                 session: cognitoResponse.Session ?? null
-            }
+            };
         }
     }
     catch (e) {
@@ -133,10 +133,10 @@ exports.handler = async (event) => {
                 message: `Login failed`
             }),
             statusCode: 401
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify(response)
-    }
-}
+    };
+};

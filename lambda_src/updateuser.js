@@ -25,7 +25,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,

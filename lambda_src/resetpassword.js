@@ -10,7 +10,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -41,6 +41,6 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
-}
+};

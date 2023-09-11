@@ -11,7 +11,7 @@ const https = require('https');
 
 const secretsProps = {
     region: process.env.ENV_REGION
-}
+};
 
 if (process.env.LOCAL) {
     secretsProps.credentials = {
@@ -22,7 +22,7 @@ if (process.env.LOCAL) {
 
 const secretsClient = new SecretsManagerClient(secretsProps);
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -35,7 +35,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -106,10 +106,10 @@ exports.handler = async (event) => {
                 message: "Internal server error",
                 error: err.message
             })
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify(response)
     };
-}
+};

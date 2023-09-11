@@ -6,7 +6,7 @@
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -37,10 +37,10 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify(response)
     };
-}
+};

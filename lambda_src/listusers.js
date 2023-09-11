@@ -14,7 +14,7 @@
 const { DynamoDB, Select } = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -39,7 +39,7 @@ exports.handler = async (event) => {
             dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
         }
         if (countonly == 'true') {
-            dynamoProps.Select = Select.COUNT
+            dynamoProps.Select = Select.COUNT;
         }
         else {
             dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
@@ -51,35 +51,35 @@ exports.handler = async (event) => {
         }
         if (tenantid) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`;
         }
         if (email) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':email'] = marshall(email)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':email'] = marshall(email);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`;
         }
         if (userroleids) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
             dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
             dynamoProps.ExpressionAttributeNames['#roles'] = 'roles';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`;
         }
         if (activeonly == 'true') {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`;
         }
         const dynamoResponse = await dynamoClient.scan(dynamoProps);
         var unmarshalledData = [];
         response = {
             consumedcapacityUnits: dynamoResponse.ConsumedCapacity.CapacityUnits,
-        }
+        };
         if (countonly != 'true') {
             dynamoResponse.Items.forEach(function (item) {
                 unmarshalledData.push(unmarshall(item));
@@ -100,11 +100,11 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
 
     return {
         statusCode: 200,
         body: JSON.stringify(response)
     };
-}
+};
