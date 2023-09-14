@@ -1,0 +1,394 @@
+{
+	"info": {
+		"_postman_id": "6f902c78-9980-4c98-a0b7-c37412a45ca0",
+		"name": "user-management-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1502780",
+		"_collection_link": "https://antasevis.postman.co/workspace/Nelson~b358c449-b4b9-4d81-8fab-8172e04f6762/collection/1502780-6f902c78-9980-4c98-a0b7-c37412a45ca0?action=share&source=collection_link&creator=1502780"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"password\": \"Password@123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/login",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"email\": \"sandeep@nelson.management\",\n    \"fullname\": \"Sandeep Emmanuel Baynes\",\n    \"resendcredentials\": false,\n    \"tenantids\": \"b406b8e4-e220-4ece-925e-ed2d228afd52,9b118222-ae4e-4395-8d77-2c35e5a3bcdf,938d7110-845a-40f3-b0db-b063c8b30f87,4dca5f2c-ce4b-41e7-93e3-54e8d10ed936\",\n    \"environmentids\": \"f1958867-3763-45d5-b7f0-916b5e8b42ac,cc859b11-6abe-43fb-878c-21ec3724b9a4,9b0703a5-48ae-46ef-9bf4-790c521e0586,bda3c318-c670-4931-9e53-cd4b1dafe568,fdc32524-6417-443d-983b-2fde9724e203,c83bac3f-0070-4d94-8f35-38042bbbc7e2,6dac5213-b916-4290-a493-42dc003adc8f,fd30aa2a-fdd5-4d6b-b83b-79f26b4c5816,031444aa-af86-4131-bd89-0374ea0c8889\",\n    \"roles\": \"NELSON_MANAGER\",\n    \"disabled\": false,\n    \"hotelids\": \"fb2018f3-c287-481d-8c56-ce7e288d2526,910bdbba-d4fe-4c2c-87c3-be0e2d39470e,b8dcd030-d022-44a4-afbc-8900abd5f4ca\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/user",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"email\": \"sandeep@nelson.management\",\n    \"fullname\": \"Sandeep Emmanuel Baynes\",\n    \"resendcredentials\": false,\n    \"tenantids\": \"b406b8e4-e220-4ece-925e-ed2d228afd52,9b118222-ae4e-4395-8d77-2c35e5a3bcdf,938d7110-845a-40f3-b0db-b063c8b30f87,4dca5f2c-ce4b-41e7-93e3-54e8d10ed936\",\n    \"environmentids\": \"f1958867-3763-45d5-b7f0-916b5e8b42ac,cc859b11-6abe-43fb-878c-21ec3724b9a4,9b0703a5-48ae-46ef-9bf4-790c521e0586,bda3c318-c670-4931-9e53-cd4b1dafe568,fdc32524-6417-443d-983b-2fde9724e203,c83bac3f-0070-4d94-8f35-38042bbbc7e2,6dac5213-b916-4290-a493-42dc003adc8f,fd30aa2a-fdd5-4d6b-b83b-79f26b4c5816,031444aa-af86-4131-bd89-0374ea0c8889\",\n    \"roles\": \"NELSON_MANAGER\",\n    \"disabled\": false,\n    \"hotelids\": \"fb2018f3-c287-481d-8c56-ce7e288d2526,910bdbba-d4fe-4c2c-87c3-be0e2d39470e,b8dcd030-d022-44a4-afbc-8900abd5f4ca\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/user",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resend Credentials",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"email\": \"sandeep@nelson.management\",\n    \"resendcredentials\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/user",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ConfirmUser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"session\": \"AYABeH9dsS22F81cO5m-r-5vezkAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMATmFybjphd3M6a21zOmV1LWNlbnRyYWwtMTo1OTA0OTA4MDk4NTg6a2V5LzRkMmU1YTdmLTFjZDctNDljOS04ZmFjLTJkOWRjYjVjZWY5ZgC4AQIBAHgmc2zKRkLpOgnyzdELgfswUTrQvbP7yAlDE_CgYbDnrwEFI_UkbHrpEB-obfk-XWY-AAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMAdXDz59h61z-rEejAgEQgDtj2F-0hDHD6cLFtIspkUFYAAvNIP5jP4zmRzbBud45Nq1uC--M8FXAEsfZlz0W5kScC2GmObMGYp2JuwIAAAAADAAAEAAAAAAAAAAAAAAAAABd2NfjKea4UrH3LF6N0MRr_____wAAAAEAAAAAAAAAAAAAAAEAAADVK0Atw4vwOHIM80_eCjkF3dnGJrovYOYPEpCkFBkg2aQ5y1_3xlbRx9dskKACgl_M4hUezEojoJ_TdnAFHZzHEZR1mKtFikj7qYQo_NSgPRmZ3BzopKzk3H421vdYxVmOTOJntFNw_fDG8EBSpHgO5qHk4MOG8nuP5m5hkGJ5milmtGR_hPXi5NCBIxElJk2OMyUHhY3XFO4n2tgHxfdrCKkOtUCEfSwBTqKLAcMbdzZDkTgsNxv1WYboiV6yue3mEDJTJj3I_C3MK6svgcibSgd1Y33jq7SK7SUaLzN9DF19w0vRfA\",\n    \"username\": \"nelson.admin@nelson.com\",\n    \"challenegname\": \"NEW_PASSWORD_REQUIRED\",\n    \"newpassword\": \"Password@123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/confirmuser",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"confirmuser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreTokenGenerator - Local Only",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"1\",\n    \"triggerSource\": \"TokenGeneration_Authentication\",\n    \"region\": \"eu-central-1\",\n    \"userPoolId\": \"eu-central-1_vbbPJ9beu\",\n    \"userName\": \"da208665-31ad-43ea-af43-dc24cf715452\",\n    \"callerContext\": {\n        \"awsSdkVersion\": \"aws-sdk-js-3.241.0\",\n        \"clientId\": \"69ovn0ihplnva0icl1t0rva6j0\"\n    },\n    \"request\": {\n        \"userAttributes\": {\n            \"sub\": \"da208665-31ad-43ea-af43-dc24cf715452\",\n            \"cognito:user_status\": \"CONFIRMED\",\n            \"email\": \"sandeep@nelson.management\"\n        },\n        \"groupConfiguration\": {\n            \"groupsToOverride\": [],\n            \"iamRolesToOverride\": [],\n            \"preferredRole\": null\n        }\n    },\n    \"response\": { \"claimsOverrideDetails\": null }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/localtest/pretokengenerator",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"localtest",
+						"pretokengenerator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListUsers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/listusers?email=sand",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"listusers"
+					],
+					"query": [
+						{
+							"key": "tenantid",
+							"value": "MTY3MjkxODE4Mjk1Mg==",
+							"disabled": true
+						},
+						{
+							"key": "email",
+							"value": "sand"
+						},
+						{
+							"key": "userroleids",
+							"value": "NELSON_ADMIN,CLIENT_ADMIN",
+							"disabled": true
+						},
+						{
+							"key": "limit",
+							"value": "2",
+							"disabled": true
+						},
+						{
+							"key": "lastevaluatedid",
+							"value": "5e12ff48-b88a-4751-a2b1-a84f63a5f9eb",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListRoles",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/roles",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"roles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUser",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/user?userid=da208665-31ad-43ea-af43-dc24cf715452",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"user"
+					],
+					"query": [
+						{
+							"key": "userid",
+							"value": "da208665-31ad-43ea-af43-dc24cf715452"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ResetPassword",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{auth}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/resetpassword",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"resetpassword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ForgotPassword",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}:{{userserviceport}}/api/user/forgotpassword",
+					"host": [
+						"{{domain}}"
+					],
+					"port": "{{userserviceport}}",
+					"path": [
+						"api",
+						"user",
+						"forgotpassword"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

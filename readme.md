@@ -15,6 +15,8 @@ Note: Make sure the environment variables are updated to the correct values in p
 
 Alternately, to debug the code on vscode, a vs launch.json has been included. Update the AWS credentials and any other environment variables as required to use this.
 
+The postman test set has been included in the source folder
+
 ## Disable cors on chrome
 When accessing the api through proxy, you may run into cors issues. Follow steps below to overcome
 * Run chrome with flag --disable-web-security
