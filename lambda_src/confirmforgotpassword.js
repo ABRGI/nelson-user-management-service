@@ -1,7 +1,7 @@
 /*
     When the user has used the forgot password link and receives a confirmation code, user can submit the code along with new password to reset their password
     parameters: 
-        username - string - required
+        username - string - required - user email used to login
         code - numeric - required
         newpassword - string - required
 */
