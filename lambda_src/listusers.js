@@ -14,7 +14,7 @@
 const { DynamoDB, Select } = require("@aws-sdk/client-dynamodb");
 const { unmarshall, marshall } = require("@aws-sdk/util-dynamodb");
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -36,7 +36,7 @@ exports.handler = async (event) => {
             dynamoProps.ExclusiveStartKey = marshall({ id: lastevaluatedid });
         }
         if (countonly == 'true') {
-            dynamoProps.Select = Select.COUNT
+            dynamoProps.Select = Select.COUNT;
         }
         else {
             //Use limit only if count is set to false
@@ -52,33 +52,32 @@ exports.handler = async (event) => {
         }
         if (tenantid) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':tenantid'] = marshall(tenantid);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(tenantids, :tenantid)`;
         }
         if (email) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':email'] = marshall(email)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':email'] = marshall(email);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(email, :email)`;
         }
         if (userroleids) {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
             dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
             dynamoProps.ExpressionAttributeNames['#roles'] = 'roles';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':roles'] = marshall(userroleids);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}contains(:roles, #roles)`;
         }
         if (activeonly == 'true') {
             dynamoProps.FilterExpression = dynamoProps.FilterExpression || '';
-            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {}
-            dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true)
-            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`
+            dynamoProps.ExpressionAttributeValues = dynamoProps.ExpressionAttributeValues || {};
+            dynamoProps.ExpressionAttributeValues[':enabled'] = marshall(true);
+            dynamoProps.FilterExpression += `${dynamoProps.FilterExpression != '' ? ' AND ' : ''}enabled=:enabled`;
         }
         var data = await fetchData(dynamoProps, countonly);
         response = data;
-        var i = 0;
         //If the returned data doesn't include as much as the limit
         while (countonly != 'true' && response.lastEvaluatedId && response.users.length < parseInt(limit)) {
             dynamoProps.ExclusiveStartKey = marshall({ id: response.lastEvaluatedId });
@@ -102,14 +101,14 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
 
     return {
         statusCode: 200,
         body: JSON.stringify(response)
     };
-}
+};
 
 async function fetchData(dynamoProps, countonly) {
     var response = {};

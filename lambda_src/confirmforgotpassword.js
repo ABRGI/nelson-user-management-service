@@ -1,6 +1,9 @@
 /*
-    Function to be used for the user to self reset password. This can be done only if the user has a verified email
-    parameters: username - string - required
+    When the user has used the forgot password link and receives a confirmation code, user can submit the code along with new password to reset their password
+    parameters: 
+        username - string - required
+        code - numeric - required
+        newpassword - string - required
 */
 
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
@@ -35,7 +38,7 @@ if (process.env.LOCAL) {
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
 exports.handler = async (event) => {
-    const { username } = JSON.parse(event.body);
+    const { username, confirmationcode, newpassword } = JSON.parse(event.body);
 
     try {
         let secretResponse;
@@ -50,16 +53,18 @@ exports.handler = async (event) => {
         hasher.update(`${username}${process.env.USERPOOL_CLIENT_ID}`);
         const secretHash = hasher.digest('base64');
 
-        const cognitoResponse = await cognitoClient.forgotPassword({
+        const cognitoResponse = await cognitoClient.confirmForgotPassword({
             ClientId: process.env.USERPOOL_CLIENT_ID,
             SecretHash: secretHash,
-            Username: username
+            Username: username,
+            ConfirmationCode: confirmationcode,
+            Password: newpassword
         });
         console.log(cognitoResponse);
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: 'Password reset request submitted successfully'
+                message: 'Password updated successfully'
             })
         };
     }

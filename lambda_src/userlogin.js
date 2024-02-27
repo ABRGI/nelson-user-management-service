@@ -2,8 +2,9 @@
     About: Function manages user login for Nelson
     Parameters:
         username - email of user if password is specified. SUB from id token if refreshtoken is specified.
-        password
-        refreshtoken
+        password - optional if refreshtoken is specified
+        refreshtoken - optional if password is specified
+        returnaccesstoken - boolean - optional - defaults to false. If set to true, the access token is returned in the response
 
         Note: Either password or refresh token is required along with the username
 */
@@ -16,7 +17,7 @@ const https = require('https');
 
 const secretsProps = {
     region: process.env.ENV_REGION
-}
+};
 
 if (process.env.LOCAL) {
     secretsProps.credentials = {
@@ -31,7 +32,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -40,7 +41,7 @@ if (process.env.LOCAL) {
 }
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -50,7 +51,7 @@ if (process.env.LOCAL) {
 const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
-    const { username, password, refreshtoken } = JSON.parse(event.body);
+    const { username, password, refreshtoken, returnaccesstoken = false } = JSON.parse(event.body);
     var response = {};
 
     try {
@@ -86,10 +87,11 @@ exports.handler = async (event) => {
             response = {
                 message: `Login succeeded`,
                 token: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.IdToken : '',
+                accesstoken: (returnaccesstoken && cognitoResponse.AuthenticationResult) ? cognitoResponse.AuthenticationResult.AccessToken : '',
                 refreshtoken: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.RefreshToken : null,
                 challenge: cognitoResponse.ChallengeName,
                 session: cognitoResponse.Session ?? null
-            }
+            };
             if (cognitoResponse.AuthenticationResult) {
                 await dynamoClient.updateItem({
                     TableName: process.env.USER_TABLE,
@@ -117,10 +119,11 @@ exports.handler = async (event) => {
             response = {
                 message: `Login succeeded`,
                 token: cognitoResponse.AuthenticationResult ? cognitoResponse.AuthenticationResult.IdToken : '',
+                accesstoken: (returnaccesstoken && cognitoResponse.AuthenticationResult) ? cognitoResponse.AuthenticationResult.AccessToken : '',
                 refreshtoken: cognitoResponse.AuthenticationResult && cognitoResponse.AuthenticationResult.RefreshToken ? cognitoResponse.AuthenticationResult.RefreshToken : refreshtoken,
                 challenge: cognitoResponse.ChallengeName,
                 session: cognitoResponse.Session ?? null
-            }
+            };
         }
     }
     catch (e) {
@@ -133,10 +136,10 @@ exports.handler = async (event) => {
                 message: `Login failed`
             }),
             statusCode: 401
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify(response)
-    }
-}
+    };
+};

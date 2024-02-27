@@ -1,6 +1,11 @@
 /*
-    Function to be used for the admin to reset password to the temp password
-    parameters: username - string - required
+    Function to be used for the admin to reset password.
+    If the newpassword is not specified, the default password will be used.
+    User is expected to change the password at next login
+    
+    parameters: 
+        username - string - required
+        newpassword - string - optional
 */
 
 const { CognitoIdentityProvider } = require("@aws-sdk/client-cognito-identity-provider");
@@ -10,7 +15,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -20,12 +25,12 @@ if (process.env.LOCAL) {
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
 exports.handler = async (event) => {
-    const { username } = JSON.parse(event.body);
+    const { username, newpassword } = JSON.parse(event.body);
     try {
         await cognitoClient.adminSetUserPassword({
             UserPoolId: process.env.USERPOOL_ID,
             Username: username,
-            Password: process.env.TEMP_PASSWORD,
+            Password: newpassword || process.env.TEMP_PASSWORD,
             Permanent: false
         });
         return {
@@ -41,6 +46,6 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
-}
+};

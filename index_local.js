@@ -7,10 +7,12 @@ const confirmuser = require('./lambda_src/confirmuser');
 const pretokengenerator = require('./lambda_src/preauthtokengenerator');
 const listusers = require('./lambda_src/listusers');
 const roles = require('./lambda_src/roles');
-const resetpassword = require('./lambda_src/resetpassword');
+const adminresetpassword = require('./lambda_src/adminresetpassword');
 const forgotpassword = require('./lambda_src/forgotpassword');
+const confirmforgotpassword = require('./lambda_src/confirmforgotpassword');
+const userresetpassword = require('./lambda_src/userresetpassword');
 
-const port = 4000;
+const port = process.env.PORT;
 var app = express();
 app.use(bodyParser.json());
 
@@ -95,7 +97,7 @@ app.get('/api/user/roles', function (req, res) {
 
 app.post('/api/user/resetpassword', function (req, res) {
     console.log(`Reset password function accessed with data: ${req.body}`);
-    resetpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
+    adminresetpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
         res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
@@ -106,6 +108,29 @@ app.post('/api/user/resetpassword', function (req, res) {
 app.post('/api/user/forgotpassword', function (req, res) {
     console.log(`Forgot password function accessed with data: ${req.body}`);
     forgotpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
+        res.statusCode = ret.statusCode;
+        res.send(JSON.parse(ret.body));
+    }).catch(function (err) {
+        console.log(err);
+    });
+});
+
+app.post('/api/user/confirmforgotpassword', function (req, res) {
+    console.log(`Confirm forgot password function accessed with data: ${req.body}`);
+    confirmforgotpassword.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
+        res.statusCode = ret.statusCode;
+        res.send(JSON.parse(ret.body));
+    }).catch(function (err) {
+        console.log(err);
+    });
+});
+
+app.post('/api/user/userresetpassword', function (req, res) {
+    console.log(`User reset password function accessed with data: ${req.body}`);
+    userresetpassword.handler({
+        headers: { Authorization: req.headers.authorization },
+        body: JSON.stringify(req.body)
+    }).then(function (ret) {
         res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
