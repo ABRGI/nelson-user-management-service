@@ -10,6 +10,9 @@
     optional - resendcredentials: Required if user was already created but not confirmed to resend the user password
     optional - roles: Comma separated UID of the roles - will be added to the user. If not specified, role will be removed
     optional - tenantids: Comma separated UIDs of tenants - will be appended to the user. If not specified, rights will be removed
+    optional - environmentids: Comma separated UIDs of environments - Will be appended to user. If not specified, the rights will be removed
+    optional - hotelids: Comma separated UIDs of hotels - Will be appended to user. If not specified the rights will be removed
+        Note, service doesn't check user role before adding hotel property. This has to be managed by the front end or calling service
     optional - disabled: boolean indicating if the user is disabled. Default false
 */
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
@@ -22,7 +25,7 @@ const cognitoProps = {
     region: process.env.ENV_REGION,
     defaultsMode: "standard",
     requestHandler: https.handler
-}
+};
 if (process.env.LOCAL) {
     cognitoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -31,7 +34,7 @@ if (process.env.LOCAL) {
 }
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
-const dynamoProps = { region: process.env.ENV_REGION }
+const dynamoProps = { region: process.env.ENV_REGION };
 if (process.env.LOCAL) {
     dynamoProps.credentials = {
         accessKeyId: process.env.ACCESSKEY,
@@ -41,7 +44,7 @@ if (process.env.LOCAL) {
 const dynamoClient = new DynamoDB(dynamoProps);
 
 exports.handler = async (event) => {
-    const { username, email, fullname, resendcredentials, roles, tenantids, environmentids, disabled = false } = JSON.parse(event.body);
+    const { username, email, fullname, resendcredentials, roles, tenantids, environmentids, hotelids, disabled = false } = JSON.parse(event.body);
     var response = {};
     // Search for user in cognito
     var existingUser = false;
@@ -71,7 +74,7 @@ exports.handler = async (event) => {
                     message: "Internal server error",
                     error: err.message
                 })
-            }
+            };
         }
     }
     if (!existingUser || resendcredentials) {
@@ -105,7 +108,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     message: err.message
                 })
-            }
+            };
         }
     }
     //Update cognito properties
@@ -151,7 +154,7 @@ exports.handler = async (event) => {
                 body: JSON.stringify({
                     message: err.message
                 })
-            }
+            };
         }
     }
     //Update Dynamo with the user data
@@ -163,6 +166,7 @@ exports.handler = async (event) => {
                 '#userroles': 'roles',
                 '#tenantids': 'tenantids',
                 '#environmentids': 'environmentids',
+                '#hotelids': 'hotelids',
                 '#email': 'email',
                 '#name': 'name',
                 '#enabled': 'enabled'
@@ -171,12 +175,13 @@ exports.handler = async (event) => {
                 ':roles': marshall(roles || ''),
                 ':tenantids': marshall(tenantids || ''),
                 ':environmentids': marshall(environmentids || ''),
+                ':hotelids': marshall(hotelids || ''),
                 ':email': marshall(email || getAttributeValue(user.UserAttributes, 'email')),
                 ':name': marshall(fullname || getAttributeValue(user.UserAttributes, 'name')),
                 ":enabled": marshall(!disabled)
             },
-            UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #tenantids=:tenantids, #environmentids=:environmentids, #enabled=:enabled'
-        }
+            UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #tenantids=:tenantids, #environmentids=:environmentids, #hotelids=:hotelids, #enabled=:enabled'
+        };
         if (!existingUser) {
             dynamoProps.ExpressionAttributeNames['#createddate'] = 'createddate';
             dynamoProps.ExpressionAttributeValues[':createddate'] = marshall(new Date().getTime());
@@ -192,15 +197,15 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 message: err.message
             })
-        }
+        };
     }
     return {
         statusCode: 200,
         body: JSON.stringify({
             message: "Successfully updated user"
         })
-    }
-}
+    };
+};
 
 function getAttributeValue(userAttributes, attributeName) {
     return userAttributes?.find((attr) => { return attr.Name == attributeName })?.Value || null;
