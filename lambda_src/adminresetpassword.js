@@ -6,6 +6,7 @@
     parameters: 
         username - string - required
         newpassword - string - optional
+        permanent - boolean - optional (defaults to false)
 */
 
 const { CognitoIdentityProvider } = require("@aws-sdk/client-cognito-identity-provider");
@@ -25,13 +26,13 @@ if (process.env.LOCAL) {
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
 exports.handler = async (event) => {
-    const { username, newpassword } = JSON.parse(event.body);
+    const { username, newpassword, permanent = false } = JSON.parse(event.body);
     try {
         await cognitoClient.adminSetUserPassword({
             UserPoolId: process.env.USERPOOL_ID,
             Username: username,
             Password: newpassword || process.env.TEMP_PASSWORD,
-            Permanent: false
+            Permanent: permanent
         });
         return {
             statusCode: 200,

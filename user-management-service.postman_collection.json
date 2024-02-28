@@ -14,7 +14,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"password\": \"Nelson@123\",\n    \"returnaccesstoken\": false\n}",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"password\": \"Nelson@123\",\n    \"returnaccesstoken\": true\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -339,7 +339,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"newpassword\": \"Nelson@123\"\n}",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"newpassword\": \"Nelson@234\",\n    \"permanent\": false\n}",
 					"options": {
 						"raw": {
 							"language": "json"
