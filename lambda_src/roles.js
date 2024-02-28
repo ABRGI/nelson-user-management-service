@@ -1,5 +1,6 @@
 /*
     Function Get all roles available in Nelson
+    TODO: Update the function to be able to create and define role rights in a POST request
 */
 
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");

@@ -362,7 +362,7 @@
 			"response": []
 		},
 		{
-			"name": "UserResetPassword",
+			"name": "ChangeUserPassword",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -382,7 +382,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{domain}}:{{userserviceport}}/api/user/userresetpassword",
+					"raw": "{{domain}}:{{userserviceport}}/api/user/changeuserpassword",
 					"host": [
 						"{{domain}}"
 					],
@@ -390,7 +390,7 @@
 					"path": [
 						"api",
 						"user",
-						"userresetpassword"
+						"changeuserpassword"
 					]
 				}
 			},

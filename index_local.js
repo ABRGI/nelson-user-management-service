@@ -10,7 +10,7 @@ const roles = require('./lambda_src/roles');
 const adminresetpassword = require('./lambda_src/adminresetpassword');
 const forgotpassword = require('./lambda_src/forgotpassword');
 const confirmforgotpassword = require('./lambda_src/confirmforgotpassword');
-const userresetpassword = require('./lambda_src/userresetpassword');
+const changeuserpassword = require('./lambda_src/changeuserpassword');
 
 const port = process.env.PORT;
 var app = express();
@@ -125,9 +125,9 @@ app.post('/api/user/confirmforgotpassword', function (req, res) {
     });
 });
 
-app.post('/api/user/userresetpassword', function (req, res) {
+app.post('/api/user/changeuserpassword', function (req, res) {
     console.log(`User reset password function accessed with data: ${req.body}`);
-    userresetpassword.handler({
+    changeuserpassword.handler({
         headers: { Authorization: req.headers.authorization },
         body: JSON.stringify(req.body)
     }).then(function (ret) {
