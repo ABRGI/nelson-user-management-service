@@ -25,7 +25,7 @@ if (process.env.LOCAL) {
 const cognitoClient = new CognitoIdentityProvider(cognitoProps);
 
 exports.handler = async (event) => {
-    if(!event.headers || !event.headers.Authorization) {
+    if (!event.headers || !event.headers.Authorization) {
         return {
             statusCode: 401,
             body: JSON.stringify({
@@ -33,12 +33,12 @@ exports.handler = async (event) => {
             })
         };
     }
-    const { currentpassword, newpassword } = JSON.parse(event.body);
+    const { currentpassword, newpassword, accesstoken } = JSON.parse(event.body);
     try {
         await cognitoClient.changePassword({
             PreviousPassword: currentpassword,
             ProposedPassword: newpassword,
-            AccessToken: event.headers.Authorization
+            AccessToken: accesstoken
         });
         return {
             statusCode: 200,
