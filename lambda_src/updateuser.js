@@ -95,6 +95,10 @@ exports.handler = async (event) => {
                     {
                         Name: 'email',
                         Value: email
+                    },
+                    {
+                        Name: 'email_verified',
+                        Value: 'true'   // TODO: Update this to be configurable by a request param
                     }
                 ]
             });
