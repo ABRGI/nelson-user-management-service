@@ -228,7 +228,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{domain}}:{{userserviceport}}/api/user/listusers?limit=2",
+					"raw": "{{domain}}:{{userserviceport}}/api/user/listusers?limit=100",
 					"host": [
 						"{{domain}}"
 					],
@@ -255,13 +255,13 @@
 							"disabled": true
 						},
 						{
-							"key": "limit",
-							"value": "2"
-						},
-						{
 							"key": "lastevaluatedid",
 							"value": "5e12ff48-b88a-4751-a2b1-a84f63a5f9eb",
 							"disabled": true
+						},
+						{
+							"key": "limit",
+							"value": "100"
 						}
 					]
 				}
@@ -374,7 +374,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"currentpassword\": \"Nelson@234\",\n    \"newpassword\": \"Nelson@123\"\n}",
+					"raw": "{\n    \"currentpassword\": \"Nelson@234\",\n    \"newpassword\": \"Nelson@123\",\n    \"accesstoken\": \"{{accesstoken}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -403,7 +403,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"sdfff@nelson.management\"\n}",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -432,7 +432,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"newpassword\": \"Nelson@234\",\n    \"confirmationcode\": \"131718\"\n}",
+					"raw": "{\n    \"username\": \"sandeep@nelson.management\",\n    \"newpassword\": \"Nelson@234\",\n    \"confirmationcode\": \"373871\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
