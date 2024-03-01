@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Local",
+            "name": "Local (Prod)",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -26,7 +26,75 @@
                 "USER_TABLE": "nelson-user-management-users",
                 "TEMP_PASSWORD": "{{Temp Password}}",
                 "ACCESS_ROLES_TABLE": "user-management-access-roles",
-                "ACCESSKEY": "{{Access Key}}",
+                "ACCESSKEY": "{{Accesss Key}}",
+                "SECRETKEY": "{{Secret Key}}"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Local (Test)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeExecutable": "/Users/sandeepbaynes/.nvm/versions/node/v20.11.0/bin/nodemon",
+            "program": "${workspaceFolder}/index_local.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "env": {
+                "PORT": "8001",
+                "LOCAL": "true",
+                "ENV_REGION": "eu-central-1",
+                "SECRET_NAME": "Test_test-nelson-users_test-nelsonmanagement_secret",
+                "USERPOOL_ID": "eu-central-1_rNnL1aRFl",
+                "USERPOOL_CLIENT_ID": "2ijii7s7n4tb670gi70g2vq5jp",
+                "USER_TABLE": "test-user-management-users",
+                "TEMP_PASSWORD": "Test@Nelson123",
+                "ACCESS_ROLES_TABLE": "test-user-management-access-roles",
+                "ACCESSKEY": "{{Accesss Key}}",
+                "SECRETKEY": "{{Secret Key}}"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Utilities - Verify user emails (Test)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeExecutable": "/Users/sandeepbaynes/.nvm/versions/node/v20.11.0/bin/nodemon",
+            "program": "${workspaceFolder}/utilities/verifyalluseremails.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "env": {
+                "ENV_REGION": "eu-central-1",
+                "SECRET_NAME": "Test_test-nelson-users_test-nelsonmanagement_secret",
+                "USERPOOL_ID": "eu-central-1_rNnL1aRFl",
+                "USERPOOL_CLIENT_ID": "2ijii7s7n4tb670gi70g2vq5jp",
+                "ACCESSKEY": "{{Accesss Key}}",
+                "SECRETKEY": "{{Secret Key}}"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Utilities - Verify user emails (Prod)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeExecutable": "/Users/sandeepbaynes/.nvm/versions/node/v20.11.0/bin/nodemon",
+            "program": "${workspaceFolder}/utilities/verifyalluseremails.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "env": {
+                "ENV_REGION": "eu-central-1",
+                "SECRET_NAME": "{{Secrets name}}",
+                "USERPOOL_ID": "{{Userpool Id}}",
+                "USERPOOL_CLIENT_ID": "{{Userpool Client Id}}",
+                "ACCESSKEY": "{{Accesss Key}}",
                 "SECRETKEY": "{{Secret Key}}"
             }
         }
