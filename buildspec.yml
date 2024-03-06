@@ -1,0 +1,53 @@
+# File directly publishes to lambda instead of a version. 
+# Change this behavior in future if it is impacting live users during the deployment
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+  pre_build:
+    commands:
+      - echo Pre build phase started on `date`
+      - echo copy login function to ../loginfn; mkdir ../loginfn; cp lambda_src/userlogin.js ../loginfn/index.js;
+      - echo no login function code. Skipping
+      - echo copy list users function to ../listusersfn; mkdir ../listusersfn; cp lambda_src/listusers.js ../listusersfn/index.js;
+      - echo copy update user function to ../updateuserfn; mkdir ../updateuserfn; cp lambda_src/updateuser.js ../updateuserfn/index.js;
+      - echo copy confirm user function to ../confirmuserfn; mkdir ../confirmuserfn; cp lambda_src/confirmuser.js ../confirmuserfn/index.js;
+      - echo copy reset password function to ../resetpasswordfn; mkdir ../resetpasswordfn; cp lambda_src/adminresetpassword.js ../resetpasswordfn/index.js;
+      - echo copy roles handler function to ../rolesfn; mkdir ../rolesfn; cp lambda_src/roles.js ../rolesfn/index.js;
+      - echo copy user detail function to ../userdetailfn; mkdir ../userdetailfn; cp lambda_src/getuserdetail.js ../userdetailfn/index.js;
+      - echo copy change password function to ../changepasswordfn; mkdir ../changepasswordfn; cp lambda_src/changeuserpassword.js ../changepasswordfn/index.js;
+      - echo copy forgot password function to ../forgotpasswordfn; mkdir ../forgotpasswordfn; cp lambda_src/forgotpassword.js ../forgotpasswordfn/index.js;
+      - echo copy confirm forgot password function to ../confirmforgotpasswordfn; mkdir ../confirmforgotpasswordfn; cp lambda_src/confirmforgotpassword.js ../confirmforgotpasswordfn/index.js;
+      - echo Pre build phase completed on `date`
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo zip login function; cd ../loginfn; zip -r loginfn.zip .;
+      - echo zip list users function; cd ../listusersfn; zip -r listusersfn.zip .;
+      - echo zip update user function function; cd ../updateuserfn; zip -r updateuserfn.zip .;
+      - echo zip confirm user function; cd ../confirmuserfn; zip -r confirmuserfn.zip .;
+      - echo zip reset password function; cd ../resetpasswordfn; zip -r resetpasswordfn.zip .;
+      - echo zip roles handler function; cd ../rolesfn; zip -r rolesfn.zip .;
+      - echo zip user detail function; cd ../userdetailfn; zip -r userdetailfn.zip .;
+      - echo zip change password function; cd ../changepasswordfn; zip -r changepasswordfn.zip .;
+      - echo zip forgot password function; cd ../forgotpasswordfn; zip -r forgotpasswordfn.zip .;
+      - echo zip confirm forgot password function; cd ../confirmforgotpasswordfn; zip -r confirmforgotpasswordfn.zip .;
+      - cd ..
+      - echo Build completed `date`
+  post_build:
+    commands:
+      - echo Lambda deployment started on `date`
+      - echo publish login fn; aws lambda update-function-code --function-name $LOGIN_FUNCTION_NAME --zip-file fileb://./loginfn/loginfn.zip;
+      - echo publish list users fn; aws lambda update-function-code --function-name $LIST_USERS_FUNCTION_NAME --zip-file fileb://./listusersfn/listusersfn.zip;
+      - echo publish update user fn; aws lambda update-function-code --function-name $CRUD_USER_FUNCTION_NAME --zip-file fileb://./updateuserfn/updateuserfn.zip;
+      - echo publish confirm user fn; aws lambda update-function-code --function-name $CONFIRM_USER_FUNCTION_NAME --zip-file fileb://./confirmuserfn/confirmuserfn.zip;
+      - echo publish reset password fn; aws lambda update-function-code --function-name $RESET_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./resetpasswordfn/resetpasswordfn.zip;
+      - echo publish roles handler fn; aws lambda update-function-code --function-name $CRUD_ROLES_FUNCTION_NAME --zip-file fileb://./rolesfn/rolesfn.zip;
+      - echo publish user detail fn; aws lambda update-function-code --function-name $GET_USER_INFO_FUNCTION_NAME --zip-file fileb://./userdetailfn/userdetailfn.zip;
+      - echo publish change password fn; aws lambda update-function-code --function-name $CHANGE_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./changepasswordfn/changepasswordfn.zip;
+      - echo publish forgot password fn; aws lambda update-function-code --function-name $FORGOT_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./forgotpasswordfn/forgotpasswordfn.zip;
+      - echo publish confirm forgot password fn; aws lambda update-function-code --function-name $CONFIRM_FORGOT_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./confirmforgotpasswordfn/confirmforgotpasswordfn.zip;
+      - echo Lambda deployment completed on `date`
