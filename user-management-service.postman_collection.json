@@ -453,6 +453,37 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "BulkImportUsers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"users\": [\r\n    {\r\n      \"username\":\"test@tma.com.vn\",\r\n      \"email\": \"test@tma.com.vn\",\r\n      \"fullname\": \"Test migration\",\r\n      \"roles\": \"NELSON_MANAGER\",\r\n      \"tenantids\": \"b406b8e4-e220-4ece-925e-ed2d228afd52,9b118222-ae4e-4395-8d77-2c35e5a3bcdf\",\r\n      \"environmentids\": \"f1958867-3763-45d5-b7f0-916b5e8b42ac\",\r\n      \"hotelids\": \"1b8584fd-f150-420d-922f-9c504a83b542,47c6886f-6142-41d2-92dc-3dd4859e9276\",\r\n      \"disabled\": false\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://test.nelson.management/api/user/bulkimport",
+					"protocol": "https",
+					"host": [
+						"test",
+						"nelson",
+						"management"
+					],
+					"path": [
+						"api",
+						"user",
+						"bulkimport"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

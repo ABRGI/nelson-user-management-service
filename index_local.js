@@ -11,6 +11,7 @@ const adminresetpassword = require('./lambda_src/adminresetpassword');
 const forgotpassword = require('./lambda_src/forgotpassword');
 const confirmforgotpassword = require('./lambda_src/confirmforgotpassword');
 const changeuserpassword = require('./lambda_src/changeuserpassword');
+const bulkimport = require('./lambda_src/bulkimport');
 
 const port = process.env.PORT;
 var app = express();
@@ -131,6 +132,16 @@ app.post('/api/user/changeuserpassword', function (req, res) {
         headers: { Authorization: req.headers.authorization },
         body: JSON.stringify(req.body)
     }).then(function (ret) {
+        res.statusCode = ret.statusCode;
+        res.send(JSON.parse(ret.body));
+    }).catch(function (err) {
+        console.log(err);
+    });
+});
+
+app.post('/api/user/bulkimport', function (req, res) {
+    console.log(`Bulk import function accessed with data: ${req.body}`);
+    bulkimport.handler({ body: JSON.stringify(req.body) }).then(function (ret) {
         res.statusCode = ret.statusCode;
         res.send(JSON.parse(ret.body));
     }).catch(function (err) {
