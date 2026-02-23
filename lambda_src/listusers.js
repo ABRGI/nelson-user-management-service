@@ -54,7 +54,7 @@ exports.handler = async (event) => {
       dynamoProps.ExpressionAttributeNames = dynamoProps.ExpressionAttributeNames || {};
       dynamoProps.ExpressionAttributeNames["#roles"] = "roles";
       dynamoProps.ExpressionAttributeNames["#name"] = "name";
-      dynamoProps.ProjectionExpression = "id, #name, email, #roles, tenantids, hotelids";
+      dynamoProps.ProjectionExpression = "id, #name, email, #roles, tenantids, hotelids, enabled";
       if (includeenvironments == "true") {
         dynamoProps.ProjectionExpression += ", environmentids";
       }
