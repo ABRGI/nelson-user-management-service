@@ -7,7 +7,7 @@ Parameters:
 required - users: Array of user objects with the following properties:
 required - username: string or email
 required - email: string email of the user
-required - fullname: string full name of the user
+required - name: string full name of the user
 optional - roles: Comma separated UID of the roles - will be added to the user
 optional - tenantids: Comma separated UIDs of tenants - will be appended to the user
 optional - environmentids: Comma separated UIDs of environments - Will be appended to user
@@ -60,13 +60,13 @@ exports.handler = async (event) => {
     // Process each user
     for (var i = 0; i < users.length; i++) {
         var userItem = users[i];
-        var { username, email, fullname, roles, tenantids, environmentids, hotelids, disabled = false } = userItem;
+        var { username, email, name, roles, tenantids, environmentids, hotelids, disabled = false, isoCountryCode, phoneNumber } = userItem;
 
         // Validate required fields
-        if (!username || !email || !fullname) {
+        if (!username || !email || !name) {
             failedImports.push({
                 user: userItem,
-                error: "Missing required fields: username, email, or fullname"
+                error: "Missing required fields: username, email, or name"
             });
             continue;
         }
@@ -78,7 +78,7 @@ exports.handler = async (event) => {
             try {
                 user = await cognitoClient.adminGetUser({
                     UserPoolId: process.env.USERPOOL_ID,
-                    Username: username
+                    Username: email
                 });
                 existingUser = true;
                 failedImports.push({
@@ -99,7 +99,7 @@ exports.handler = async (event) => {
             // Create the new user in Cognito
             var newUserResult = await cognitoClient.adminCreateUser({
                 UserPoolId: process.env.USERPOOL_ID,
-                Username: username,
+                Username: email,
                 TemporaryPassword: process.env.TEMP_PASSWORD,
                 MessageAction: MessageActionType.SUPPRESS,
                 DesiredDeliveryMediums: [DeliveryMediumType.EMAIL],
@@ -107,7 +107,7 @@ exports.handler = async (event) => {
                 UserAttributes: [
                     {
                         Name: 'name',
-                        Value: fullname
+                        Value: name
                     },
                     {
                         Name: 'email',
@@ -124,7 +124,7 @@ exports.handler = async (event) => {
             // Update DynamoDB with the user data
             var dynamoUpdateProps = {
                 TableName: process.env.USER_TABLE,
-                Key: marshall({ id: user.Username }),
+                Key: marshall({ id: username }),
                 ExpressionAttributeNames: {
                     '#userroles': 'roles',
                     '#tenantids': 'tenantids',
@@ -142,7 +142,7 @@ exports.handler = async (event) => {
                     ':environmentids': marshall(environmentids || ''),
                     ':hotelids': marshall(hotelids || ''),
                     ':email': marshall(email),
-                    ':name': marshall(fullname),
+                    ':name': marshall(name),
                     ':enabled': marshall(!disabled),
                     ':createddate': marshall(new Date().getTime()),
                     ':confirmed': marshall(false)
@@ -150,12 +150,23 @@ exports.handler = async (event) => {
                 UpdateExpression: 'SET #email=:email, #name=:name, #userroles=:roles, #tenantids=:tenantids, #environmentids=:environmentids, #hotelids=:hotelids, #enabled=:enabled, #createddate=:createddate, #confirmed=:confirmed'
             };
 
+            if (isoCountryCode !== undefined && isoCountryCode !== null) {
+                dynamoUpdateProps.ExpressionAttributeNames['#isoCountryCode'] = 'isoCountryCode';
+                dynamoUpdateProps.ExpressionAttributeValues[':isoCountryCode'] = marshall(isoCountryCode);
+                dynamoUpdateProps.UpdateExpression += ', #isoCountryCode=:isoCountryCode';
+            }
+            if (phoneNumber !== undefined && phoneNumber !== null) {
+                dynamoUpdateProps.ExpressionAttributeNames['#phoneNumber'] = 'phoneNumber';
+                dynamoUpdateProps.ExpressionAttributeValues[':phoneNumber'] = marshall(phoneNumber);
+                dynamoUpdateProps.UpdateExpression += ', #phoneNumber=:phoneNumber';
+            }
+
             await dynamoClient.updateItem(dynamoUpdateProps);
 
             successfulImports.push({
                 username: username,
                 email: email,
-                fullname: fullname
+                name: name
             });
 
         } catch (err) {
