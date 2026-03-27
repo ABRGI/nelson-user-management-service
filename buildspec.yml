@@ -35,6 +35,7 @@ phases:
       - echo zip change password function; cd ../changepasswordfn; zip -r changepasswordfn.zip .;
       - echo zip forgot password function; cd ../forgotpasswordfn; zip -r forgotpasswordfn.zip .;
       - echo zip confirm forgot password function; cd ../confirmforgotpasswordfn; zip -r confirmforgotpasswordfn.zip .;
+      - echo zip bulkimportusers function; cd ../bulkimportusersfn; zip -r bulkimportusersfn.zip .;
       - cd ..
       - echo Build completed `date`
   post_build:
@@ -50,4 +51,5 @@ phases:
       - echo publish change password fn; aws lambda update-function-code --function-name $CHANGE_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./changepasswordfn/changepasswordfn.zip;
       - echo publish forgot password fn; aws lambda update-function-code --function-name $FORGOT_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./forgotpasswordfn/forgotpasswordfn.zip;
       - echo publish confirm forgot password fn; aws lambda update-function-code --function-name $CONFIRM_FORGOT_USER_PASSWORD_FUNCTION_NAME --zip-file fileb://./confirmforgotpasswordfn/confirmforgotpasswordfn.zip;
+      - echo publish bulk import users fn; aws lambda update-function-code --function-name $BULK_IMPORT_USERS_FUNCTION_NAME --zip-file fileb://./bulkimportusersfn/bulkimportusersfn.zip;
       - echo Lambda deployment completed on `date`
