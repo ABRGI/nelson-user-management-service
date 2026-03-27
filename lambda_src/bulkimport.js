@@ -124,7 +124,7 @@ exports.handler = async (event) => {
             // Update DynamoDB with the user data
             var dynamoUpdateProps = {
                 TableName: process.env.USER_TABLE,
-                Key: marshall({ id: username }),
+                Key: marshall({ id: user.Username }),
                 ExpressionAttributeNames: {
                     '#userroles': 'roles',
                     '#tenantids': 'tenantids',
